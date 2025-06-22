@@ -1,0 +1,11 @@
+echo "--- Running Backend Lint ---"
+(cd backend && composer run-script lint) || exit 1
+
+echo "\n--- Running Frontend Lint ---"
+(cd frontend && npm run lint) || exit 1
+
+echo "\n--- Running Backend Tests ---"
+(cd backend && composer run-script test) || exit 1
+
+echo "\n--- Running Frontend Tests ---"
+(cd frontend && npm run test) || exit 1 

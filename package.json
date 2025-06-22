@@ -1,0 +1,18 @@
+{
+  "name": "my-laravel-kanban-2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"cd backend && php artisan serve\" \"cd frontend && npm run dev\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2"
+  }
+}
