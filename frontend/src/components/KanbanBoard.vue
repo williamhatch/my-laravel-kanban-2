@@ -44,10 +44,10 @@ const fetchData = async () => {
   try {
     const response = await apiClient.get("/api/kanban");
     columns.value = response.data;
-  } catch (error) {
+  } catch (err) {
     error.value = "Failed to fetch data from the server.";
 
-    console.error("Failed to fetch kanban data:", error);
+    console.error("Failed to fetch kanban data:", err);
   } finally {
     isLoading.value = false;
   }
@@ -56,13 +56,20 @@ const fetchData = async () => {
 // Handle drag-and-drop sync
 const onDragEnd = async () => {
   try {
+    // Update column_id for all tasks based on their current position
+    columns.value.forEach((column) => {
+      column.tasks.forEach((task) => {
+        task.column_id = column.id;
+      });
+    });
+
     await apiClient.put("/api/kanban/sync", {
       columns: columns.value,
     });
-  } catch (error) {
+  } catch (err) {
     error.value = "Failed to sync board state.";
 
-    console.error("Failed to sync board state:", error);
+    console.error("Failed to sync board state:", err);
   }
 };
 
