@@ -12,7 +12,7 @@ test('authenticated user can fetch kanban data', function () {
     $token = $user->createToken('auth_token')->plainTextToken;
 
     // Create columns and tasks
-    $column = Column::factory()->create();
+    $column = Column::factory()->create(['user_id' => $user->id]);
     Task::factory()->count(3)->create(['column_id' => $column->id]);
 
     $response = $this->withHeaders([
@@ -34,7 +34,7 @@ test('authenticated user can fetch kanban data', function () {
 test('authenticated user can create a task', function () {
     $user = User::factory()->create();
     $token = $user->createToken('auth_token')->plainTextToken;
-    $column = Column::factory()->create();
+    $column = Column::factory()->create(['user_id' => $user->id]);
 
     $taskData = [
         'title' => 'New Task',

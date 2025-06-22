@@ -56,9 +56,24 @@ class KanbanController extends Controller
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
+            'column_id' => 'sometimes|required|exists:columns,id',
+            'order' => 'sometimes|required|integer|min:0',
+        ]);
+
+        \Log::info('Updating single task', [
+            'task_id' => $task->id,
+            'old_column_id' => $task->column_id,
+            'old_order' => $task->order,
+            'new_data' => $validated
         ]);
 
         $task->update($validated);
+
+        \Log::info('Task updated successfully', [
+            'task_id' => $task->id,
+            'new_column_id' => $task->column_id,
+            'new_order' => $task->order
+        ]);
 
         return response()->json($task);
     }
@@ -82,10 +97,22 @@ class KanbanController extends Controller
             'columns' => ['required', 'array']
         ]);
 
+        \Log::info('Sync request received', ['columns' => $request->columns]);
+
         foreach ($request->columns as $column) {
+            \Log::info('Processing column', ['column_id' => $column['id'], 'tasks_count' => count($column['tasks'])]);
+
             foreach ($column['tasks'] as $i => $task) {
                 $taskModel = Task::find($task['id']);
                 if ($taskModel) {
+                    \Log::info('Updating task', [
+                        'task_id' => $task['id'],
+                        'old_column_id' => $taskModel->column_id,
+                        'new_column_id' => $column['id'],
+                        'old_order' => $taskModel->order,
+                        'new_order' => $i
+                    ]);
+
                     $taskModel->order = $i;
                     $taskModel->column_id = $column['id'];
                     $taskModel->save();
@@ -93,6 +120,6 @@ class KanbanController extends Controller
             }
         }
 
-        return response()->json(null, 200);
+        return response()->json(['message' => 'Sync completed'], 200);
     }
 }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { Sortable } from "sortablejs-vue3";
+import { ref, onMounted, nextTick } from "vue";
+// @ts-expect-error: Sortable types are not fully compatible
+import Sortable from "sortablejs";
 import { authState, authService } from "../services/auth";
 import apiClient from "../services/api";
 import NewTaskForm from "./NewTaskForm.vue";
@@ -53,24 +54,59 @@ const fetchData = async () => {
   }
 };
 
-// Handle drag-and-drop sync
-const onDragEnd = async () => {
-  try {
-    // Update column_id for all tasks based on their current position
+// 初始化sortable实例
+const initializeSortable = () => {
+  nextTick(() => {
+    // 为每个列初始化sortable
     columns.value.forEach((column) => {
-      column.tasks.forEach((task) => {
-        task.column_id = column.id;
-      });
-    });
+      const columnElement = (globalThis as any).document.querySelector(
+        `[data-column-id="${column.id}"]`,
+      );
+      if (columnElement) {
+        new Sortable(columnElement as any, {
+          group: "tasks",
+          animation: 150,
+          onEnd: async (evt: any) => {
+            try {
+              console.log("=== DRAG END EVENT TRIGGERED ===");
 
-    await apiClient.put("/api/kanban/sync", {
-      columns: columns.value,
-    });
-  } catch (err) {
-    error.value = "Failed to sync board state.";
+              // 获取拖拽信息
+              const taskId = parseInt(evt.item.getAttribute("data-task-id"));
+              const fromColumnId = parseInt(
+                evt.from.getAttribute("data-column-id"),
+              );
+              const toColumnId = parseInt(
+                evt.to.getAttribute("data-column-id"),
+              );
+              const newIndex = evt.newIndex;
+              const oldIndex = evt.oldIndex;
 
-    console.error("Failed to sync board state:", err);
-  }
+              console.log(
+                `Moving task ${taskId} from column ${fromColumnId} to column ${toColumnId}, position ${newIndex}`,
+              );
+
+              // 如果没有实际移动，直接返回
+              if (fromColumnId === toColumnId && oldIndex === newIndex) {
+                return;
+              }
+
+              // 直接使用API更新单个任务的位置
+              console.log("Updating task position...");
+              await apiClient.put(`/api/kanban/tasks/${taskId}`, {
+                column_id: toColumnId,
+                order: newIndex,
+              });
+
+              console.log("Task updated successfully!");
+            } catch (err) {
+              console.error("Failed to update task:", err);
+              error.value = "Failed to update task position.";
+            }
+          },
+        });
+      }
+    });
+  });
 };
 
 // Handle the event when a new task is added
@@ -105,7 +141,10 @@ const handleLogout = () => {
   authService.logout();
 };
 
-onMounted(fetchData);
+onMounted(async () => {
+  await fetchData();
+  initializeSortable();
+});
 </script>
 
 <template>
@@ -125,19 +164,17 @@ onMounted(fetchData);
       <div v-for="column in columns" :key="column.id" class="kanban-column">
         <h2>{{ column.name }}</h2>
 
-        <Sortable
-          :list="column.tasks"
-          item-key="id"
-          :options="{ group: 'tasks' }"
-          class="drag-area"
-          @end="onDragEnd"
-        >
-          <template #item="{ element: task }">
-            <div class="task-card" @click="openTaskModal(task)">
-              <p>{{ task.title }}</p>
-            </div>
-          </template>
-        </Sortable>
+        <div class="drag-area" :data-column-id="column.id">
+          <div
+            v-for="task in column.tasks"
+            :key="task.id"
+            class="task-card"
+            :data-task-id="task.id"
+            @click="openTaskModal(task)"
+          >
+            <p>{{ task.title }}</p>
+          </div>
+        </div>
 
         <!-- New Task Form -->
         <NewTaskForm :column-id="column.id" @task-added="handleTaskAdded" />
