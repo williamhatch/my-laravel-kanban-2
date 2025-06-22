@@ -8,7 +8,7 @@
 
 <style>
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   background-color: #f7fafc;
   margin: 0;
   padding: 0;

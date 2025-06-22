@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { Sortable } from 'sortablejs-vue3';
-import { authState, authService } from '../services/auth';
-import apiClient from '../services/api';
-import NewTaskForm from './NewTaskForm.vue';
-import TaskModal from './TaskModal.vue';
+import { ref, onMounted } from "vue";
+import { Sortable } from "sortablejs-vue3";
+import { authState, authService } from "../services/auth";
+import apiClient from "../services/api";
+import NewTaskForm from "./NewTaskForm.vue";
+import TaskModal from "./TaskModal.vue";
 
 // Define the types for our data
 interface Task {
@@ -42,11 +42,12 @@ const closeModal = () => {
 // Fetch data from the API
 const fetchData = async () => {
   try {
-    const response = await apiClient.get('/api/kanban');
+    const response = await apiClient.get("/api/kanban");
     columns.value = response.data;
-  } catch (err) {
-    error.value = 'Failed to fetch data from the server.';
-    console.error(err);
+  } catch (error) {
+    error.value = "Failed to fetch data from the server.";
+
+    console.error("Failed to fetch kanban data:", error);
   } finally {
     isLoading.value = false;
   }
@@ -55,27 +56,28 @@ const fetchData = async () => {
 // Handle drag-and-drop sync
 const onDragEnd = async () => {
   try {
-    await apiClient.put('/api/kanban/sync', {
-      columns: columns.value
+    await apiClient.put("/api/kanban/sync", {
+      columns: columns.value,
     });
-  } catch (err) {
-    error.value = 'Failed to sync board state.';
-    console.error(err);
+  } catch (error) {
+    error.value = "Failed to sync board state.";
+
+    console.error("Failed to sync board state:", error);
   }
 };
 
 // Handle the event when a new task is added
 const handleTaskAdded = (newTask: Task) => {
-  const column = columns.value.find(col => col.id === newTask.column_id);
+  const column = columns.value.find((col) => col.id === newTask.column_id);
   if (column) {
     column.tasks.push(newTask);
   }
 };
 
 const handleTaskUpdated = (updatedTask: Task) => {
-  const column = columns.value.find(col => col.id === updatedTask.column_id);
+  const column = columns.value.find((col) => col.id === updatedTask.column_id);
   if (column) {
-    const taskIndex = column.tasks.findIndex(t => t.id === updatedTask.id);
+    const taskIndex = column.tasks.findIndex((t) => t.id === updatedTask.id);
     if (taskIndex !== -1) {
       column.tasks[taskIndex] = updatedTask;
     }
@@ -84,10 +86,10 @@ const handleTaskUpdated = (updatedTask: Task) => {
 
 const handleTaskDeleted = (taskId: number) => {
   for (const column of columns.value) {
-    const taskIndex = column.tasks.findIndex(t => t.id === taskId);
+    const taskIndex = column.tasks.findIndex((t) => t.id === taskId);
     if (taskIndex !== -1) {
       column.tasks.splice(taskIndex, 1);
-      break; 
+      break;
     }
   }
 };
@@ -135,9 +137,9 @@ onMounted(fetchData);
       </div>
     </div>
 
-    <TaskModal 
-      :task="selectedTask" 
-      :show="isModalVisible" 
+    <TaskModal
+      :task="selectedTask"
+      :show="isModalVisible"
       @close="closeModal"
       @task-updated="handleTaskUpdated"
       @task-deleted="handleTaskDeleted"
@@ -207,7 +209,9 @@ onMounted(fetchData);
   background-color: #ffffff;
   border-radius: 4px;
   padding: 1rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px 0 rgba(0, 0, 0, 0.06);
   cursor: grab;
 }
 
@@ -216,6 +220,6 @@ onMounted(fetchData);
 }
 
 .error {
-    color: #ef4444;
+  color: #ef4444;
 }
-</style> 
+</style>

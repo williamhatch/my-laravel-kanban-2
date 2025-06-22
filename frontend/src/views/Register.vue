@@ -5,47 +5,53 @@
       <form @submit.prevent="handleRegister">
         <div class="form-group">
           <label for="name">Full Name</label>
-          <input type="text" id="name" v-model="name" required>
+          <input type="text" id="name" v-model="name" required />
         </div>
         <div class="form-group">
           <label for="email">Email Address</label>
-          <input type="email" id="email" v-model="email" required>
+          <input type="email" id="email" v-model="email" required />
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" v-model="password" required>
+          <input type="password" id="password" v-model="password" required />
         </div>
         <div class="form-group">
           <label for="password_confirmation">Confirm Password</label>
-          <input type="password" id="password_confirmation" v-model="password_confirmation" required>
+          <input
+            type="password"
+            id="password_confirmation"
+            v-model="password_confirmation"
+            required
+          />
         </div>
         <div v-if="error" class="error-message">{{ error }}</div>
         <button type="submit" class="auth-button">Register</button>
       </form>
       <div class="switch-auth">
-        Already have an account? <router-link to="/login">Login here</router-link>
+        Already have an account?
+        <router-link to="/login">Login here</router-link>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { authService } from '../services/auth';
+import { ref } from "vue";
+import { authService } from "../services/auth";
 
-const name = ref('');
-const email = ref('');
-const password = ref('');
-const password_confirmation = ref('');
+const name = ref("");
+const email = ref("");
+const password = ref("");
+const password_confirmation = ref("");
 const error = ref<string | null>(null);
 
 const handleRegister = async () => {
   error.value = null;
   if (password.value !== password_confirmation.value) {
-    error.value = 'Passwords do not match.';
+    error.value = "Passwords do not match.";
     return;
   }
-  
+
   try {
     await authService.register({
       name: name.value,
@@ -55,12 +61,12 @@ const handleRegister = async () => {
     });
   } catch (err: any) {
     if (err.response && err.response.data && err.response.data.errors) {
-        // Handle Laravel validation errors
-        const errors = err.response.data.errors;
-        const firstErrorKey = Object.keys(errors)[0];
-        error.value = errors[firstErrorKey][0];
+      // Handle Laravel validation errors
+      const errors = err.response.data.errors;
+      const firstErrorKey = Object.keys(errors)[0];
+      error.value = errors[firstErrorKey][0];
     } else {
-        error.value = 'An unexpected error occurred during registration.';
+      error.value = "An unexpected error occurred during registration.";
     }
   }
 };
@@ -80,7 +86,9 @@ const handleRegister = async () => {
   background-color: white;
   padding: 2.5rem;
   border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
   width: 100%;
   max-width: 28rem;
 }
@@ -139,4 +147,4 @@ const handleRegister = async () => {
   font-weight: 600;
   text-decoration: none;
 }
-</style> 
+</style>

@@ -5,28 +5,29 @@
       <form @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="email">Email Address</label>
-          <input type="email" id="email" v-model="email" required>
+          <input type="email" id="email" v-model="email" required />
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" v-model="password" required>
+          <input type="password" id="password" v-model="password" required />
         </div>
         <div v-if="error" class="error-message">{{ error }}</div>
         <button type="submit" class="auth-button">Login</button>
       </form>
       <div class="switch-auth">
-        Don't have an account? <router-link to="/register">Register here</router-link>
+        Don't have an account?
+        <router-link to="/register">Register here</router-link>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { authService } from '../services/auth';
+import { ref } from "vue";
+import { authService } from "../services/auth";
 
-const email = ref('');
-const password = ref('');
+const email = ref("");
+const password = ref("");
 const error = ref<string | null>(null);
 
 const handleLogin = async () => {
@@ -37,7 +38,8 @@ const handleLogin = async () => {
       password: password.value,
     });
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'An error occurred during login.';
+    error.value =
+      err.response?.data?.message || "An error occurred during login.";
   }
 };
 </script>
@@ -55,7 +57,9 @@ const handleLogin = async () => {
   background-color: white;
   padding: 2.5rem;
   border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
   width: 100%;
   max-width: 28rem;
 }
@@ -114,4 +118,4 @@ const handleLogin = async () => {
   font-weight: 600;
   text-decoration: none;
 }
-</style> 
+</style>

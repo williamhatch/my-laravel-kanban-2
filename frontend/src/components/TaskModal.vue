@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import apiClient from '../services/api';
+import { ref, watch } from "vue";
+import apiClient from "../services/api";
 
 interface Task {
   id: number;
@@ -16,44 +16,49 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits(['close', 'task-updated', 'task-deleted']);
+const emit = defineEmits(["close", "task-updated", "task-deleted"]);
 
 const editableTask = ref<Partial<Task>>({});
 
 // When the modal is shown, copy the task prop to a local editable object
-watch(() => props.task, (newTask) => {
-  if (newTask) {
-    editableTask.value = { ...newTask };
-  }
-});
+watch(
+  () => props.task,
+  (newTask) => {
+    if (newTask) {
+      editableTask.value = { ...newTask };
+    }
+  },
+);
 
 const closeModal = () => {
-  emit('close');
+  emit("close");
 };
 
 const updateTask = async () => {
   if (!editableTask.value || !editableTask.value.id) return;
   try {
-    const response = await apiClient.put(`/api/kanban/tasks/${editableTask.value.id}`, {
-      title: editableTask.value.title,
-      description: editableTask.value.description,
-    });
-    emit('task-updated', response.data);
+    const response = await apiClient.put(
+      `/api/kanban/tasks/${editableTask.value.id}`,
+      {
+        title: editableTask.value.title,
+        description: editableTask.value.description,
+      },
+    );
+    emit("task-updated", response.data);
     closeModal();
   } catch (error) {
-    console.error('Failed to update task:', error);
+    console.error("Failed to update task:", error);
   }
 };
 
 const deleteTask = async () => {
-  if (!editableTask.value || !editableTask.value.id) return;
-  if (confirm('Are you sure you want to delete this task?')) {
+  if (confirm("Are you sure you want to delete this task?")) {
     try {
       await apiClient.delete(`/api/kanban/tasks/${editableTask.value.id}`);
-      emit('task-deleted', editableTask.value.id);
-      closeModal();
+      emit("task-deleted", editableTask.value.id);
+      emit("close");
     } catch (error) {
-      console.error('Failed to delete task:', error);
+      console.error("Failed to delete task:", error);
     }
   }
 };
@@ -63,8 +68,16 @@ const deleteTask = async () => {
   <div v-if="show" class="modal-overlay" @click.self="closeModal">
     <div class="modal-content">
       <div v-if="editableTask">
-        <input type="text" v-model="editableTask.title" class="task-title-input" />
-        <textarea v-model="editableTask.description" class="task-description-textarea" placeholder="Add a description..."></textarea>
+        <input
+          type="text"
+          v-model="editableTask.title"
+          class="task-title-input"
+        />
+        <textarea
+          v-model="editableTask.description"
+          class="task-description-textarea"
+          placeholder="Add a description..."
+        ></textarea>
         <div class="modal-actions">
           <button @click="updateTask" class="save-button">Save</button>
           <button @click="deleteTask" class="delete-button">Delete</button>
@@ -129,7 +142,9 @@ const deleteTask = async () => {
   gap: 1rem;
 }
 
-.save-button, .delete-button, .cancel-button {
+.save-button,
+.delete-button,
+.cancel-button {
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 4px;
@@ -151,4 +166,4 @@ const deleteTask = async () => {
   background-color: #f7fafc;
   color: #718096;
 }
-</style> 
+</style>

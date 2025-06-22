@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
-import apiClient from '../services/api';
+import { ref, nextTick } from "vue";
+import apiClient from "../services/api";
 
 interface Props {
   columnId: number;
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits(['task-added']);
+const emit = defineEmits(["task-added"]);
 
 const isCreating = ref(false);
-const newTaskTitle = ref('');
+const newTaskTitle = ref("");
 const error = ref<string | null>(null);
 const textareaRef = ref<HTMLTextAreaElement | null>(null);
 
@@ -22,27 +22,28 @@ const startCreating = async () => {
 
 const cancelCreating = () => {
   isCreating.value = false;
-  newTaskTitle.value = '';
+  newTaskTitle.value = "";
   error.value = null;
 };
 
 const saveTask = async () => {
   if (!newTaskTitle.value.trim()) {
-    error.value = 'Title is required.';
+    error.value = "Title is required.";
     return;
   }
-  
+
   try {
-    const response = await apiClient.post('/api/kanban/tasks', {
+    const response = await apiClient.post("/api/kanban/tasks", {
       title: newTaskTitle.value,
       column_id: props.columnId,
     });
-    
-    emit('task-added', response.data);
+
+    emit("task-added", response.data);
     cancelCreating();
-  } catch (err) {
-    error.value = 'Failed to create task.';
-    console.error(err);
+  } catch (error) {
+    error.value = "Failed to create task.";
+
+    console.error("Failed to create task:", error);
   }
 };
 </script>
@@ -50,8 +51,19 @@ const saveTask = async () => {
 <template>
   <div class="new-task-form">
     <div v-if="!isCreating" @click="startCreating" class="add-card-button">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline-block mr-1">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="w-6 h-6 inline-block mr-1"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 4.5v15m7.5-7.5h-15"
+        />
       </svg>
       Add a card
     </div>
@@ -82,7 +94,9 @@ const saveTask = async () => {
   font-weight: 500;
   display: flex;
   align-items: center;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 }
 
 .add-card-button:hover {
@@ -138,4 +152,4 @@ const saveTask = async () => {
   color: #ef4444;
   font-size: 0.875rem;
 }
-</style> 
+</style>
